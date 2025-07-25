@@ -23,9 +23,9 @@ function renderBooks(filter) {
   const books = getBooks();
 
   if (filter === "LOW_TO_HIGH") {
-    books.sort((a, b) => a.originalPrice - b.originalPrice); //To note: .sort does NOT create new array
+    books.sort((a, b) => (a.salePrice || a.originalPrice) - (b.salePrice || b.originalPrice)); //To note: .sort does NOT create new array
   } else if (filter === "HIGH_TO_LOW") {
-    books.sort((a, b) => b.originalPrice - a.originalPrice);
+    books.sort((a, b) => (b.salePrice || b.originalPrice) - (a.salePrice || a.originalPrice));
   } else if (filter === "RATING") {
     books.sort((a, b) => b.rating - a.rating);
   }
@@ -44,12 +44,21 @@ function renderBooks(filter) {
       ${ratingsHTML(book.rating)}
     </div>
     <div class="book__price">
-      <span>$${book.originalPrice.toFixed(2)}</span>
+      ${priceHTML(book.originalPrice,book.salePrice)}
     </div>
   </div>`;
     })
     .join(""); //use .join to eliminate commas separating arrayed elements
   booksWrapper.innerHTML = booksHTML;
+}
+
+function priceHTML(originalPrice, salePrice) {
+  if (!salePrice) {
+    return `$${originalPrice.toFixed(2)}`
+  }
+  else {
+    return `<span class="book__price--normal">$${originalPrice.toFixed(2)}</span>$${salePrice.toFixed(2)}`
+  }
 }
 
 function filterBooks(event) {
@@ -88,7 +97,7 @@ function getBooks() {
       title: "Atomic Habits",
       url: "assets/atomic habits.jpg",
       originalPrice: 39,
-      salePrice: 1,
+      salePrice: null,
       rating: 3,
     },
     {
