@@ -1,4 +1,76 @@
+//map changes all elements of an array to something else in a NEW array
+//(use here to dynamically place arrayed data into innerHTML)
+//.map syntax
+//define array
+const array1 = [1, 4, 9, 16];
+//pass function to map
+const map1 = array1.map((x) => x * 2);
+// console.log(map1) -> (4) [2, 8, 18, 32]
 
+//join eliminates (or alters) divisions within an array
+//(use here to remove commas)
+//.join syntax
+//define array
+const elements = ["Fire", "Air", "Water"];
+// console.log(elements);            //-> (3) ['Fire', 'Air', 'Water']
+// console.log(elements.join());     //->Fire,Air,Water
+// console.log(elements.join(''));   //->FireAirWater
+// console.log(elements.join(' '));  //->Fire Air Water
+// console.log(elements.join('-'));  //->Fire-Air-Water
+
+function renderBooks(filter) {
+  const booksWrapper = document.querySelector(".books");
+  const books = getBooks();
+
+  if (filter === "LOW_TO_HIGH") {
+    books.sort((a, b) => a.originalPrice - b.originalPrice); //To note: .sort does NOT create new array
+  } else if (filter === "HIGH_TO_LOW") {
+    books.sort((a, b) => b.originalPrice - a.originalPrice);
+  } else if (filter === "RATING") {
+    books.sort((a, b) => b.rating - a.rating);
+  }
+
+  const booksHTML = books
+    .map((book) => {
+      //have to reassign the return of .map because mapping x does NOT redefine x. Creates new
+      return `<div class="book">
+    <figure class="book__img--wrapper">
+      <img class="book__img" src="${book.url}" alt="">
+    </figure>
+    <div class="book__title">
+      ${book.title}
+    </div>
+    <div class="book__ratings">
+      ${ratingsHTML(book.rating)}
+    </div>
+    <div class="book__price">
+      <span>$${book.originalPrice.toFixed(2)}</span>
+    </div>
+  </div>`;
+    })
+    .join(""); //use .join to eliminate commas separating arrayed elements
+  booksWrapper.innerHTML = booksHTML;
+}
+
+function filterBooks(event) {
+  renderBooks(event.target.value);
+}
+
+function ratingsHTML(rating) {
+  let ratingHTML = "";
+  for (let i = 0; i < Math.floor(rating); ++i) {
+    //Math.floor rounds down. Math.floor rounds up
+    ratingHTML += '<i class="fas fa-star"></i>\n';
+  }
+  if (!Number.isInteger(rating)) {
+    ratingHTML += '<i class="fas fa-star-half-alt"></i>\n';
+  }
+  return ratingHTML;
+}
+
+setTimeout(() => {
+  renderBooks();
+});
 
 // FAKE DATA
 function getBooks() {
@@ -6,7 +78,7 @@ function getBooks() {
     {
       id: 1,
       title: "Crack the Coding Interview",
-                url: "assets/crack the coding interview.png",
+      url: "assets/crack the coding interview.png",
       originalPrice: 49.95,
       salePrice: 14.95,
       rating: 4.5,
@@ -16,8 +88,8 @@ function getBooks() {
       title: "Atomic Habits",
       url: "assets/atomic habits.jpg",
       originalPrice: 39,
-      salePrice: null,
-      rating: 5,
+      salePrice: 1,
+      rating: 3,
     },
     {
       id: 3,
@@ -25,7 +97,7 @@ function getBooks() {
       url: "assets/deep work.jpeg",
       originalPrice: 29,
       salePrice: 12,
-      rating: 5,
+      rating: 1,
     },
     {
       id: 4,
@@ -41,7 +113,7 @@ function getBooks() {
       url: "assets/book-2.jpeg",
       originalPrice: 32,
       salePrice: 17,
-      rating: 4,
+      rating: 3,
     },
     {
       id: 6,
@@ -73,7 +145,7 @@ function getBooks() {
       url: "assets/book-6.jpeg",
       originalPrice: 35,
       salePrice: null,
-      rating: 4,
+      rating: 2,
     },
     {
       id: 10,
