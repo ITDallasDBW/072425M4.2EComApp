@@ -1,5 +1,5 @@
 //map changes all elements of an array to something else in a NEW array
-//(use here to dynamically place arrayed data into innerHTML)
+//(used here to dynamically place arrayed data into innerHTML)
 //.map syntax
 //define array
 const array1 = [1, 4, 9, 16];
@@ -18,11 +18,19 @@ const elements = ["Fire", "Air", "Water"];
 // console.log(elements.join(' '));  //->Fire Air Water
 // console.log(elements.join('-'));  //->Fire-Air-Water
 
-function renderBooks(filter) {
-  const booksWrapper = document.querySelector(".books");
-  const books = getBooks();
+let books;
 
-  if (filter === "LOW_TO_HIGH") {
+async function renderBooks(filter) {
+  const booksWrapper = document.querySelector(".books");
+
+  booksWrapper.classList += ' books__loading';
+
+  if (!books) {
+    books = await getBooks();
+  }
+  booksWrapper.classList.remove('books__loading')
+
+  if (filter === "LOW_TO_HIGH") { //use || OR to compare regular price vs sale price. First value that exists gets used.
     books.sort((a, b) => (a.salePrice || a.originalPrice) - (b.salePrice || b.originalPrice)); //To note: .sort does NOT create new array
   } else if (filter === "HIGH_TO_LOW") {
     books.sort((a, b) => (b.salePrice || b.originalPrice) - (a.salePrice || a.originalPrice));
@@ -32,7 +40,7 @@ function renderBooks(filter) {
 
   const booksHTML = books
     .map((book) => {
-      //have to reassign the return of .map because mapping x does NOT redefine x. Creates new
+      //have to reassign the return of .map to var because mapping x does NOT redefine x. Creates new
       return `<div class="book">
     <figure class="book__img--wrapper">
       <img class="book__img" src="${book.url}" alt="">
@@ -48,7 +56,7 @@ function renderBooks(filter) {
     </div>
   </div>`;
     })
-    .join(""); //use .join to eliminate commas separating arrayed elements
+    .join(""); //use .join to eliminate commas separating arrayed elements (so that commas aren't rendered along with data)
   booksWrapper.innerHTML = booksHTML;
 }
 
@@ -68,22 +76,24 @@ function filterBooks(event) {
 function ratingsHTML(rating) {
   let ratingHTML = "";
   for (let i = 0; i < Math.floor(rating); ++i) {
-    //Math.floor rounds down. Math.floor rounds up
+    //Math.floor rounds down. Math.floor rounds up. So 4.2 doesn't get 5 stars
     ratingHTML += '<i class="fas fa-star"></i>\n';
   }
-  if (!Number.isInteger(rating)) {
+  if (!Number.isInteger(rating)) {//To make half stars possible if rating has decimal
     ratingHTML += '<i class="fas fa-star-half-alt"></i>\n';
   }
   return ratingHTML;
 }
-
 setTimeout(() => {
   renderBooks();
 });
 
+
 // FAKE DATA
 function getBooks() {
-  return [
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve ([
     {
       id: 1,
       title: "Crack the Coding Interview",
@@ -172,5 +182,7 @@ function getBooks() {
       salePrice: null,
       rating: 4.5,
     },
-  ];
+  ])
+    }, 1000);
+  })
 }
